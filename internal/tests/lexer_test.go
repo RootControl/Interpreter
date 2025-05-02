@@ -1,4 +1,4 @@
-package lexer
+package tests
 
 import (
 	"testing"
@@ -11,23 +11,27 @@ func TestNextToken(t *testing.T) {
 
 	tests := []struct {
 		expectedType tk.TokenType
-		expectedLiteral uint32
+		expectedLiteral byte
 	}{
-		{tk.Plus, 21},
-		{tk.Assign, 20},
-		{tk.LeftBrace, 34},
-		{tk.RightBrace, 35},
-		{tk.LeftParenthesis, 32},
-		{tk.RightParenthesis, 33},
-		{tk.Comma, 30},
-		{tk.Semicolon, 31},
-		{tk.EoF, 1},
+		{tk.Plus, '+'},
+		{tk.Assign, '='},
+		{tk.LeftBrace, '{'},
+		{tk.RightBrace, '}'},
+		{tk.LeftParenthesis, '('},
+		{tk.RightParenthesis, ')'},
+		{tk.Comma, ','},
+		{tk.Semicolon, ';'},
+		{tk.EoF, 0},
 	}
 
 	lexer := lx.NewLexer(input)
 
 	for i, tt := range tests {
-		token := lexer.NextToken()
+		token, err := lexer.NextToken()
+
+		if err != nil {
+			t.Fatalf("tests[%d] - %s", i, err)
+		}
 
 		if token.Type != tt.expectedType {
 			t.Fatalf("tests[%d] - token type wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
