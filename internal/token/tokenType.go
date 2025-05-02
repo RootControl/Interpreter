@@ -4,7 +4,7 @@ type TokenType uint32
 
 const (
 	Illigal TokenType = iota
-	EoF = 0
+	EoF = 1
 
 	// Identifiers and literals
 	Identifier = 10
