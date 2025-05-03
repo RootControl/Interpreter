@@ -61,6 +61,12 @@ func (l *Lexer) NextToken() (tk.Token, error) {
 		tokenType = tk.LeftBrace
 	case '}':
 		tokenType = tk.RightBrace
+	case '<':
+		tokenType = tk.LessThan
+	case '>':
+		tokenType = tk.GreaterThan
+	case '!':
+		tokenType = tk.Bang
 	case 0:
 		tokenType = tk.EoF
 	default:
