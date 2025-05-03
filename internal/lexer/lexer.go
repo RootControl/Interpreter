@@ -1,8 +1,6 @@
 package lexer
 
 import (
-	"errors"
-
 	tk "github.com/RootControl/Interpreter/internal/token"
 )
 type Lexer struct {
@@ -38,6 +36,8 @@ func (l *Lexer) nextChar() {
 func (l *Lexer) NextToken() (tk.Token, error) {
 	var tokenType tk.TokenType
 
+	l.skipWhitespace()
+
 	switch l.CurrentChar {
 	case '=':
 		tokenType = tk.Assign
@@ -64,15 +64,52 @@ func (l *Lexer) NextToken() (tk.Token, error) {
 	case 0:
 		tokenType = tk.EoF
 	default:
-		tokenType = tk.Identifier
+		tokenType, identifier := l.getIdentifier()
+		return tk.NewToken(tokenType, identifier), nil
 	}
 
-	if tokenType == tk.Illigal {
-		return tk.Token{}, errors.New("unknown token")
-	}
-
-	token := tk.NewToken(tokenType, l.CurrentChar)
+	token := tk.NewToken(tokenType, string(l.CurrentChar))
 	l.nextChar()
 
 	return token, nil
+}
+
+func (l *Lexer) skipWhitespace() {
+	for l.CurrentChar == ' ' || l.CurrentChar == '\t' || 
+			l.CurrentChar == '\n' || l.CurrentChar == '\r' {
+				l.nextChar()
+			}
+}
+
+func (l *Lexer) getIdentifier() (tokenType tk.TokenType, identifier string) {
+	if isLetter(l.CurrentChar) {
+		identifier = l.readIdentifier(isLetter)
+		tokenType = tk.LookupIdent(identifier)
+	} else if isNumber(l.CurrentChar) {
+		identifier = l.readIdentifier(isNumber)
+		tokenType = tk.Integer
+	} else {
+		identifier = ""
+		tokenType = tk.Illigal
+	}
+
+	return tokenType, identifier
+}
+
+func (l *Lexer) readIdentifier(isValid func(byte) bool) string {
+	initialPosition := l.CurrentPosition
+
+	for isValid(l.CurrentChar) {
+		l.nextChar()
+	}
+
+	return l.Input[initialPosition:l.CurrentPosition]
+}
+
+func isLetter(char byte) bool {
+	return 'a' <= char && char <= 'z' || 'A' <= char && char <= 'Z' || char == '_'
+}
+
+func isNumber(char byte) bool {
+	return '0' <= char && char <= '9'
 }

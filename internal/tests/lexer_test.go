@@ -7,21 +7,58 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := "+={}(),;"
+	input :=  `let five = 5;
+
+	let ten = 10;
+
+	let add = fn (x, y) {
+		x + y;
+	};
+
+	let result = add(five, ten);
+	`
 
 	tests := []struct {
 		expectedType tk.TokenType
-		expectedLiteral byte
+		expectedLiteral string
 	}{
-		{tk.Plus, '+'},
-		{tk.Assign, '='},
-		{tk.LeftBrace, '{'},
-		{tk.RightBrace, '}'},
-		{tk.LeftParenthesis, '('},
-		{tk.RightParenthesis, ')'},
-		{tk.Comma, ','},
-		{tk.Semicolon, ';'},
-		{tk.EoF, 0},
+		{tk.Let, "let"},
+		{tk.Identifier, "five"},
+		{tk.Assign, "="},
+		{tk.Integer, "5"},
+		{tk.Semicolon, ";"},
+		{tk.Let, "let"},
+		{tk.Identifier, "ten"},
+		{tk.Assign, "="},
+		{tk.Integer, "10"},
+		{tk.Semicolon, ";"},
+		{tk.Let, "let"},
+		{tk.Identifier, "add"},
+		{tk.Assign, "="},
+		{tk.Function, "fn"},
+		{tk.LeftParenthesis, "("},
+		{tk.Identifier, "x"},
+		{tk.Comma, ","},
+		{tk.Identifier, "y"},
+		{tk.RightParenthesis, ")"},
+		{tk.LeftBrace, "{"},
+		{tk.Identifier, "x"},
+		{tk.Plus, "+"},
+		{tk.Identifier, "y"},
+		{tk.Semicolon, ";"},
+		{tk.RightBrace, "}"},
+		{tk.Semicolon, ";"},
+		{tk.Let, "let"},
+		{tk.Identifier, "result"},
+		{tk.Assign, "="},		
+		{tk.Identifier, "add"},
+		{tk.LeftParenthesis, "("},
+		{tk.Identifier, "five"},
+		{tk.Comma, ","},
+		{tk.Identifier, "ten"},
+		{tk.RightParenthesis, ")"},
+		{tk.Semicolon, ";"},
+		{tk.EoF, string(byte(0))},
 	}
 
 	lexer := lx.NewLexer(input)

@@ -5,6 +5,6 @@ type Token struct {
 	Literal string
 }
 
-func NewToken(t TokenType, l byte) Token {
-	return Token{Type: t, Literal: string(l)}
+func NewToken(t TokenType, l string) Token {
+	return Token{Type: t, Literal: l}
 }
