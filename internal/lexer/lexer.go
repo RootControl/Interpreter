@@ -33,14 +33,30 @@ func (l *Lexer) nextChar() {
 	l.ReadPosition++
 }
 
+func (l *Lexer) peekChar() byte {
+	if l.ReadPosition >= l.InputLenght {
+		return 0
+	}
+
+	return l.Input[l.ReadPosition]
+}
+
 func (l *Lexer) NextToken() (tk.Token, error) {
 	var tokenType tk.TokenType
+	identifier := ""
 
 	l.skipWhitespace()
 
 	switch l.CurrentChar {
 	case '=':
 		tokenType = tk.Assign
+
+		if l.peekChar() == '=' {
+			tokenType = tk.Equal
+			identifier = string(l.CurrentChar)
+			l.nextChar()
+			identifier += string(l.CurrentChar)
+		}
 	case '+':
 		tokenType = tk.Plus
 	case '-':
@@ -67,14 +83,25 @@ func (l *Lexer) NextToken() (tk.Token, error) {
 		tokenType = tk.GreaterThan
 	case '!':
 		tokenType = tk.Bang
+
+		if l.peekChar() == '=' {
+			tokenType = tk.NotEqual
+			identifier = string(l.CurrentChar)
+			l.nextChar()
+			identifier += string(l.CurrentChar)
+		}
 	case 0:
 		tokenType = tk.EoF
 	default:
-		tokenType, identifier := l.getIdentifier()
+		tokenType, identifier = l.getIdentifier()
 		return tk.NewToken(tokenType, identifier), nil
 	}
 
-	token := tk.NewToken(tokenType, string(l.CurrentChar))
+	if identifier == "" {
+		identifier = string(l.CurrentChar)
+	}
+
+	token := tk.NewToken(tokenType, identifier)
 	l.nextChar()
 
 	return token, nil
@@ -91,9 +118,11 @@ func (l *Lexer) getIdentifier() (tokenType tk.TokenType, identifier string) {
 	if isLetter(l.CurrentChar) {
 		identifier = l.readIdentifier(isLetter)
 		tokenType = tk.LookupIdent(identifier)
+
 	} else if isNumber(l.CurrentChar) {
 		identifier = l.readIdentifier(isNumber)
 		tokenType = tk.Integer
+
 	} else {
 		identifier = ""
 		tokenType = tk.Illigal

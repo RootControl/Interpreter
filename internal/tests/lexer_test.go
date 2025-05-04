@@ -1,9 +1,11 @@
 package tests
 
 import (
+	"fmt"
 	"testing"
-	tk "github.com/RootControl/Interpreter/internal/token"
+
 	lx "github.com/RootControl/Interpreter/internal/lexer"
+	tk "github.com/RootControl/Interpreter/internal/token"
 )
 
 func TestNextToken(t *testing.T) {
@@ -25,6 +27,10 @@ func TestNextToken(t *testing.T) {
 	} else {
 		return false;
 	}
+
+	10 == 10;
+
+	10 != 9;
 	`
 
 	tests := []struct {
@@ -96,6 +102,14 @@ func TestNextToken(t *testing.T) {
 		{tk.False, "false"},
 		{tk.Semicolon, ";"},
 		{tk.RightBrace, "}"},
+		{tk.Integer, "10"},
+		{tk.Equal, "=="},
+		{tk.Integer, "10"},
+		{tk.Semicolon, ";"},
+		{tk.Integer, "10"},
+		{tk.NotEqual, "!="},
+		{tk.Integer, "9"},
+		{tk.Semicolon, ";"},
 		{tk.EoF, string(byte(0))},
 	}
 
@@ -108,12 +122,14 @@ func TestNextToken(t *testing.T) {
 			t.Fatalf("tests[%d] - %s", i, err)
 		}
 
+		fmt.Printf("TOKEN type: %v | char: %v\nTEST  type: %v | char: %v\n\n", token.Type, token.Literal, tt.expectedType, tt.expectedLiteral)
+
 		if token.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - token type wrong. expected=%q, got=%q", i, tt.expectedType, token.Type)
+			t.Fatalf("tests[%d] - token type wrong. expected=%v, got=%v", i, tt.expectedType, token.Type)
 		}
 
 		if token.Literal != string(tt.expectedLiteral) {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, token.Literal)
+			t.Fatalf("tests[%d] - literal wrong. expected=%v, got=%v", i, tt.expectedLiteral, token.Literal)
 		}
 	}
 }
